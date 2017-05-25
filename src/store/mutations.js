@@ -1,5 +1,6 @@
 import {
-  GET_USERINFO
+  GET_USERINFO,
+  RECORD_USERINFO
 } from './mutation-types.js'
 
 export default {
@@ -20,5 +21,15 @@ export default {
     } else {
       state.userInfo = null
     }
+  },
+  // 记录用户信息
+  [RECORD_USERINFO] (state, info) {
+    state.userInfo = info
+    state.login = true
+    let validity = 30
+    let now = new Date()
+    now.setTime(now.getTime() + validity * 24 * 60 * 60 * 1000)
+    document.cookie = 'USERID = ' + info.user_id + '; expires = ' + now.toGMTString()
+    document.cookie = 'SID = huRyTRd9QLij7NkbpHJoj3PQrx1eRiO6bAiw' + '; expires = ' + now.toGMTString()
   }
 }

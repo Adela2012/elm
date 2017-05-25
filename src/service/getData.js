@@ -10,7 +10,7 @@ const setpromise = data => {
     resolve(data)
   })
 }
-var cityGuess, hotcity, groupcity, getUser
+var cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin
 // 编译环境使用真实数据
 if (process.env.NODE_ENV === 'development') {
   /**
@@ -42,11 +42,48 @@ if (process.env.NODE_ENV === 'development') {
    */
 
   getUser = () => fetch('GET', 'v1/user', {})
+
+  /**
+   * 获取短信验证码
+   */
+
+  mobileCode = phone => fetch('POST', 'v4/mobile/verify_code/send', {
+    captcha_code: '',
+    mobile: phone,
+    scene: 'login',
+    type: 'sms'
+  })
+
+  getcaptchas = () => fetch('POST', 'v1/captchas', {})
+
+  /**
+   * 账号密码登录
+   */
+
+  accountLogin = (username, password, captchaCode) => fetch('POST', '/v2/login', {username, password, captchaCode})
+
+  /**
+   * 检测账户是否存在
+   */
+
+  checkExsis = (checkNumber, type) => fetch('GET', 'v1/users/exists', {
+    [type]: checkNumber,
+    type
+  })
 } else {
   cityGuess = () => setpromise(home.guesscity)
   hotcity = () => setpromise(home.hotcity)
   groupcity = () => setpromise(home.groupcity)
   getUser = () => setpromise(login.userInfo)
+  mobileCode = phone => setpromise(login.validateToken)
+  accountLogin = (username, password, captchaCode) => setpromise(login.userInfo)
+  checkExsis = (checkNumber, type) => setpromise(login.checkExsts)
+  getcaptchas = () => setpromise(login.captchas)
 }
 
-export {cityGuess, hotcity, groupcity, getUser}
+/**
+ * 以下Api接口不需要进行反向代理
+ */
+sendLogin = (code, mobile, validataToken) => setpromise(login.userInfo)
+
+export {cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin}
