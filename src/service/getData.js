@@ -1,5 +1,6 @@
 import fetch from '../config/fetch'
 import * as home from './tempdata/home'
+import * as login from './tempdata/login'
 
 /**
  *创建临时数据
@@ -9,7 +10,7 @@ const setpromise = data => {
     resolve(data)
   })
 }
-var cityGuess, hotcity, groupcity
+var cityGuess, hotcity, groupcity, getUser
 // 编译环境使用真实数据
 if (process.env.NODE_ENV === 'development') {
   /**
@@ -35,10 +36,17 @@ if (process.env.NODE_ENV === 'development') {
   groupcity = () => fetch('GET', '/v1/cities', {
     type: 'group'
   })
+
+  /**
+   * 获取用户信息
+   */
+
+  getUser = () => fetch('GET', 'v1/user', {})
 } else {
   cityGuess = () => setpromise(home.guesscity)
   hotcity = () => setpromise(home.hotcity)
   groupcity = () => setpromise(home.groupcity)
+  getUser = () => setpromise(login.userInfo)
 }
 
-export {cityGuess, hotcity, groupcity}
+export {cityGuess, hotcity, groupcity, getUser}

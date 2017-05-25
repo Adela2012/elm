@@ -1,5 +1,8 @@
 <template>
   <div class="home">
+        <head-top signin-up='home'>
+          <span slot='logo' class="head_logo"  @click="reload">ele.me</span>
+        </head-top>
         <nav class="city_nav">
             <div class="city_tip">
                 <span>当前定位城市：</span>
@@ -11,7 +14,7 @@
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#arrow-right"></use>
                 </svg>
             </router-link>  
-        </nav>
+        </nav> 
         <section id="hot_city_container">
             <h4 class="city_title">热门城市</h4>
             <ul class="citylistul clear">
@@ -39,6 +42,7 @@
 </template>
 
 <script>
+  import headTop from '../../components/header/head'
   import {cityGuess, hotcity, groupcity} from '../../service/getData'
   export default {
     name: 'home',
@@ -49,6 +53,9 @@
         hotcity: [],
         groupcity: {}
       }
+    },
+    components: {
+      headTop
     },
     mounted () {
       // 获取当前城市
@@ -75,6 +82,11 @@
           }
         }
         return sortobj
+      }
+    },
+    methods: {
+      reload () {
+        window.location.reload()
       }
     }
   }
