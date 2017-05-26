@@ -1,6 +1,7 @@
 import fetch from '../config/fetch'
 import * as home from './tempdata/home'
 import * as login from './tempdata/login'
+import * as city from './tempdata/city'
 
 /**
  *创建临时数据
@@ -10,7 +11,7 @@ const setpromise = data => {
     resolve(data)
   })
 }
-var cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin
+var cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace
 // 编译环境使用真实数据
 if (process.env.NODE_ENV === 'development') {
   /**
@@ -70,15 +71,36 @@ if (process.env.NODE_ENV === 'development') {
     [type]: checkNumber,
     type
   })
+
+  /**
+   * 获取当前所在城市
+   */
+
+  currentcity = number => fetch('GET', '/v1/cities/' + number, {})
+
+  /**
+   * 获取搜索地址
+   */
+
+  searchplace = (cityid, value) => fetch('GET', 'v1/pois', {
+    type: 'search',
+    city_id: cityid,
+    keyword: value
+  })
 } else {
+  // home
   cityGuess = () => setpromise(home.guesscity)
   hotcity = () => setpromise(home.hotcity)
   groupcity = () => setpromise(home.groupcity)
+  // login
   getUser = () => setpromise(login.userInfo)
   mobileCode = phone => setpromise(login.validateToken)
   accountLogin = (username, password, captchaCode) => setpromise(login.userInfo)
   checkExsis = (checkNumber, type) => setpromise(login.checkExsts)
   getcaptchas = () => setpromise(login.captchas)
+  // city
+  currentcity = () => setpromise(city.currentcity)
+  searchplace = () => setpromise(city.searchdata)
 }
 
 /**
@@ -86,4 +108,4 @@ if (process.env.NODE_ENV === 'development') {
  */
 sendLogin = (code, mobile, validataToken) => setpromise(login.userInfo)
 
-export {cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin}
+export {cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace}

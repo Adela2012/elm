@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import store from './store'
 import './config/rem'
+import './config/mUtils'
 import FastClick from 'fastclick'
 
 if ('addEventListener' in document) {
