@@ -7,7 +7,12 @@ Vue.use(Vuex)
 
 const state = {
   userInfo: null, // 用户信息
-  login: true // 是否登录
+  login: true, // 是否登录
+  geohash: 'wtw3sm0q087', // 地址geohash值
+  choosedAddress: null, // 选择地址
+  addressIndex: null, // 选择地址的索引值
+  latitude: null, // 当前位置纬度
+  longitude: null // 当前位置经度
 }
 
 export default new Vuex.Store({

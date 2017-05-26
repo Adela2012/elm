@@ -2,6 +2,7 @@ import fetch from '../config/fetch'
 import * as home from './tempdata/home'
 import * as login from './tempdata/login'
 import * as city from './tempdata/city'
+import * as msite from './tempdata/msite'
 
 /**
  *创建临时数据
@@ -11,7 +12,7 @@ const setpromise = data => {
     resolve(data)
   })
 }
-var cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace
+var cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace, msiteAddress, msiteFoodTypes, shopList
 // 编译环境使用真实数据
 if (process.env.NODE_ENV === 'development') {
   /**
@@ -82,11 +83,50 @@ if (process.env.NODE_ENV === 'development') {
    * 获取搜索地址
    */
 
-  searchplace = (cityid, value) => fetch('GET', 'v1/pois', {
+  searchplace = (cityid, value) => fetch('GET', '/v1/pois/', {
     type: 'search',
     city_id: cityid,
     keyword: value
   })
+
+  /**
+   * 获取msite页面地址信息
+   */
+  msiteAddress = geohash => fetch('GET', '/v2/pois/' + geohash, {})
+
+  /**
+   * 获取msite页面食品分类的列表
+   */
+  msiteFoodTypes = geohash => fetch('GET', 'v2/index_entry/', {
+    geohash,
+    group_type: '1',
+    'flags[]': 'F'
+  })
+
+  /**
+   * 获取msite商铺列表
+   */
+  shopList = (latitude, longitude, offset, restaurant_category_id = '', restaurant_category_ids = '', order_by = '', delivery_mode = '', support_ids = []) => {
+    let supportStr = ''
+    support_ids.forEach(item => {
+      if (item.status) {
+        supportStr += '&support_ids[] = ' +item.id
+      }
+    })
+    let data = {
+      latitude,
+      longitude,
+      offset,
+      limit: '20',
+      'extras[]': 'activities',
+      keyword: '',
+      restaurant_category_id,
+      'restaurant_category_ids[]': restaurant_category_ids,
+      order_by,
+      'delivery_mode[]': delivery_mode + supportStr
+    }
+    return fetch('GET', '/shopping/restautants', data)
+  }
 } else {
   // home
   cityGuess = () => setpromise(home.guesscity)
@@ -101,6 +141,10 @@ if (process.env.NODE_ENV === 'development') {
   // city
   currentcity = () => setpromise(city.currentcity)
   searchplace = () => setpromise(city.searchdata)
+  // msite
+  msiteAddress = geohash => setpromise(msite.msiteAddress)
+  msiteFoodTypes = geohash => setpromise(msite.foodTypes)
+  shopList = (latitude, longitude, offset) => setpromise(msite.shopList)
 }
 
 /**
@@ -108,4 +152,4 @@ if (process.env.NODE_ENV === 'development') {
  */
 sendLogin = (code, mobile, validataToken) => setpromise(login.userInfo)
 
-export {cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace}
+export {cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace, msiteAddress, msiteFoodTypes, shopList}

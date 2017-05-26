@@ -1,6 +1,8 @@
 import {
   GET_USERINFO,
-  RECORD_USERINFO
+  RECORD_USERINFO,
+  SAVE_GEOHASH,
+  RECORD_ADDRESS
 } from './mutation-types.js'
 
 export default {
@@ -31,5 +33,14 @@ export default {
     now.setTime(now.getTime() + validity * 24 * 60 * 60 * 1000)
     document.cookie = 'USERID = ' + info.user_id + '; expires = ' + now.toGMTString()
     document.cookie = 'SID = huRyTRd9QLij7NkbpHJoj3PQrx1eRiO6bAiw' + '; expires = ' + now.toGMTString()
+  },
+  // 保存geohash
+  [SAVE_GEOHASH] (state, geohash) {
+    state.geohash = geohash
+  },
+  // 记录当前经度纬度
+  [RECORD_ADDRESS] (state, {latitude, longitude}) {
+    state.latitude = latitude
+    state.longitude = longitude
   }
 }
