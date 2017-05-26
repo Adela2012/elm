@@ -13,6 +13,20 @@
         <input type="text" placeholder="验证码" name="mobileCode" maxlength="6" v-model="mobileCode">
       </section>
     </form>
+    <form v-else class="loginForm">
+      <section class="input_container">
+        <input type="text" placeholder="手机号/邮箱/用户名" v-model="userAccount">
+      </section>
+      <section class="input_container">
+        <input v-if="!showPassword" type="password" placeholder="密码" v-model="passWord">
+        <input v-else type="text" placeholder="密码" v-model="passWord">
+        <div class="button_switch" :class="{change_to_text: showPassword}" @click="showPassword = !showPassword">
+          <div class="circel_button" :class="{trans_to_right: showPassword}"></div>
+          <span>abc</span>
+          <span>...</span>
+        </div>
+      </section>
+    </form>
     <p class="login_tips">
       温馨提示：未注册饿了么账号的手机号，登录时将自动注册，且代表您已同意<a href="https://h5.ele.me/service/agreement/">《用户服务协议》</a>
     </p>
@@ -24,18 +38,21 @@
 <script>
   import headTop from '../../components/header/head'
   import {mapMutations} from 'vuex'
-  import {checkExsis, mobileCode, sendLogin} from '../../service/getData'
+  import {checkExsis, mobileCode, sendLogin, accountLogin} from '../../service/getData'
   import alertTip from '../../components/common/alertTip'
   export default {
     data () {
       return {
-        loginWay: true, // 登录方式，默认短信登录
+        loginWay: false, // 登录方式，默认短信登录
         phoneNumber: null, // 电话号码
         mobileCode: null, // 短信验证码
         validateToken: null, // 获取短信是返回的验证值，登录时需要
         computedTime: 0, // 倒数计时
         showAlert: false,
-        alertText: null
+        alertText: null,
+        userAccount: null,
+        passWord: null,
+        showPassword: false
       }
     },
     components: {
@@ -95,6 +112,26 @@
             return
           }
           this.userInfo = await sendLogin(this.mobileCode, this.phoneNumber, this.validateToken)
+        } else {
+          if (!this.userAccount) {
+            this.showAlert = true
+            this.alertText = '请输入手机号/邮箱/用户名'
+            return
+          } else if (!this.passWord) {
+            this.showAlert = true
+            this.alertText = '请输入密码'
+            return
+          }
+          this.userInfo = await accountLogin(this.userAccount, this.passWord, '')
+        }
+        // 如果返回的值不正确，则弹出提示框，返回的值正确则返回上一页
+        if (!this.userInfo.user_id) {
+          this.showAlert = true
+          this.alertText = this.userInfo.message
+          if (!this.loginWay) this.getCaptchaCode()
+        } else {
+          this.RECORD_USERINFO(this.userInfo)
+          this.$router.go(-1)
         }
       },
       closeTip () {
@@ -201,8 +238,9 @@
             transition: all .3s;
             position: absolute;
             z-index: 1;
-            @include wh(1.2rem, 1.2rem);
-            left: -.1rem;
+            @include wh(0.8rem, 0.8rem);
+            left: -.06rem;
+            top: -.05rem;
             box-shadow: 0 0.026667rem 0.053333rem 0 rgba(0,0,0,.1);
             background-color: #f1f1f1;
             border-radius: 50%;
@@ -216,12 +254,21 @@
             transform: translateY(.05rem);
             line-height: .6rem;
         }
+        span:nth-of-type(1){
+            opacity:0;
+        }
         span:nth-of-type(2){
-            transform: translateY(-.08rem);
+            transform: translateY(-.16rem);
         }
     }
     .change_to_text{
-        background-color: #4cd964;
+        background-color: #3190e8;
+        span:nth-of-type(1){
+            opacity:1;
+        }
+        span:nth-of-type(2){
+            opacity:0;
+        }
     }
     .to_forget{
         float: right;

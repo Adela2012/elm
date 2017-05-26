@@ -47,7 +47,7 @@ if (process.env.NODE_ENV === 'development') {
    * 获取短信验证码
    */
 
-  mobileCode = phone => fetch('POST', 'v4/mobile/verify_code/send', {
+  mobileCode = phone => fetch('GET', 'v4/mobile/verify_code/send', {
     captcha_code: '',
     mobile: phone,
     scene: 'login',
