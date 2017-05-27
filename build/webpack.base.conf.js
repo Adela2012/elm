@@ -32,7 +32,7 @@ module.exports = {
         loader: 'eslint-loader',
         enforce: 'pre',
         include: [resolve('src'), resolve('test')],
-        exclude: [resolve('src/service')],
+        exclude: [resolve('src/service'), resolve('src/components/mint'), resolve('src/config/dom.js')],
         options: {
           formatter: require('eslint-friendly-formatter')
         }
