@@ -28,31 +28,24 @@
           </a>
         </swipe-item>
       </swipe>
-<!--       <div class="swiper-container">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide food_types_container" v-for="(item, index) in foodTypes" :key="index">
-              <router-link :to="{path: '/food', query: {geohash, title: foodItem.title, restaurant_category_id: getCategoryId(foodItem.link)}}" v-for="foodItem in item" :key="foodItem.id" v-if="foodItem.title !== '预定早餐'" class="link_to_food">
-                <figure>
-                  <img :src="imgBaseUrl + foodItem.image_url" alt="">
-                  <figcaption>{{foodItem.title}}</figcaption>
-                </figure>
-              </router-link>
-              <a href="https://zaocan.ele.me/" class="link_to_food" v-else>
-                <figure>
-                  <img :src="imgBaseUrl + foodItem.image_url" alt="">
-                  <figcaption>{{foodItem.title}}</figcaption>
-                </figure>
-              </a>
-          </div>
-        </div>
-        <div class="swiper-pagination"></div>
-      </div> -->
     </nav>
+    <div class="shop_list_container">
+      <header class="shop_header">
+        <svg class="shop_icon">
+          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#shop"></use>
+        </svg>
+        <span class="shop_header_title">附近商家</span>
+      </header>
+      <shop-list v-if="hasGetData" :geohash="geohash"></shop-list>
+    </div>
+    <foot-guide></foot-guide>
   </div>
 </template>
 
 <script>
 import headTop from '@/components/header/head'
+import footGuide from '@/components/footer/footGuide'
+import shopList from '@/components/common/shoplist'
 import {swipe, swipeItem} from '@/components/mint/swipe'
 import {msiteAddress, msiteFoodTypes} from '@/service/getData'
 import {mapMutations} from 'vuex'
@@ -76,6 +69,7 @@ export default {
     this.msiteTitle = res.name
     // 记录当前经度纬度
     this.RECORD_ADDRESS(res)
+    console.log(res)
     this.hasGetData = true
   },
   mounted () {
@@ -103,7 +97,9 @@ export default {
   components: {
     headTop,
     swipe,
-    swipeItem
+    swipeItem,
+    footGuide,
+    shopList
   }
 }
 </script>

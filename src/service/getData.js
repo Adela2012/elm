@@ -125,7 +125,7 @@ if (process.env.NODE_ENV === 'development') {
       order_by,
       'delivery_mode[]': delivery_mode + supportStr
     }
-    return fetch('GET', '/shopping/restautants', data)
+    return fetch('GET', '/shopping/restaurants', data)
   }
 } else {
   // home
