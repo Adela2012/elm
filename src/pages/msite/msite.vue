@@ -69,7 +69,6 @@ export default {
     this.msiteTitle = res.name
     // 记录当前经度纬度
     this.RECORD_ADDRESS(res)
-    console.log(res)
     this.hasGetData = true
   },
   mounted () {
