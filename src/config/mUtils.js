@@ -176,7 +176,7 @@ export const animate = (element, target, duration = 400, mode = 'ease-out', call
       // 判断是否达步长之内的误差距离，如果到达说明到达目标点
       switch (mode) {
         case 'ease-out':
-          status = iCurrent !== target(attr)
+          status = iCurrent !== target[attr]
           break
         case 'linear':
           status = Math.abs(Math.abs(iCurrent) - Math.abs(target[attr])) > Math.abs(iSpeed)
