@@ -14,7 +14,7 @@
     <nav class="msite_nav">
       <swipe  :auto="0" class="foodentry">
         <swipe-item v-for="(item, index) in foodTypes" :key="index"  class="food_types_container">
-          <router-link :to="{path: '/food', query: {geohash, title: foodItem.title, restaurant_category_id: getCategoryId(foodItem.link)}}" v-for="foodItem in item" :key="foodItem.id" v-if="foodItem.title !== '预定早餐'" class="link_to_food">
+          <router-link :to="{path: '/food', query: {geohash, title: foodItem.title, restaurant_category_id: getCategoryId(foodItem.link)}}" tag="div" v-for="foodItem in item" :key="foodItem.id" v-if="foodItem.title !== '预定早餐'" class="link_to_food">
             <figure>
               <img :src="imgBaseUrl + foodItem.image_url" alt="">
               <figcaption>{{foodItem.title}}</figcaption>

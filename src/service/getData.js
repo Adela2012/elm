@@ -3,6 +3,7 @@ import * as home from './tempdata/home'
 import * as login from './tempdata/login'
 import * as city from './tempdata/city'
 import * as msite from './tempdata/msite'
+import * as food from './tempdata/food'
 
 /**
  *创建临时数据
@@ -12,7 +13,7 @@ const setpromise = data => {
     resolve(data)
   })
 }
-var cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace, msiteAddress, msiteFoodTypes, shopList
+var cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace, msiteAddress, msiteFoodTypes, shopList, foodCategory, foodDelivery, foodActivity
 // 编译环境使用真实数据
 if (process.env.NODE_ENV === 'development') {
   /**
@@ -127,6 +128,32 @@ if (process.env.NODE_ENV === 'development') {
     }
     return fetch('GET', '/shopping/restaurants', data)
   }
+
+  /**
+   * 获取food页面的 category 种类列表
+   */
+  foodCategory = (latitude, longitude) => fetch('GET', '/shopping/v2/restaurant/category/', {
+    latitude,
+    longitude
+  })
+
+  /**
+   * 获取food页面的配送方式
+   */
+  foodDelivery = (latitude, longitude) => fetch('GET', '/shopping/v1/restaurants/delivery_modes/', {
+    latitude,
+    longitude,
+    kw: ''
+  })
+
+  /**
+   * 获取food页面的商家属性活动列表
+   */
+  foodActivity = (latitude, longitude) => fetch('GET', '/shopping/v1/restaurants/activity_attributes/', {
+    latitude,
+    longitude,
+    kw: ''
+  })
 } else {
   // home
   cityGuess = () => setpromise(home.guesscity)
@@ -145,6 +172,10 @@ if (process.env.NODE_ENV === 'development') {
   msiteAddress = geohash => setpromise(msite.msiteAddress)
   msiteFoodTypes = geohash => setpromise(msite.foodTypes)
   shopList = (latitude, longitude, offset) => setpromise(msite.shopList)
+  //food
+  foodCategory = (latitude, longitude) => setpromise(food.category)
+  foodDelivery = (latitude, longitude) => setpromise(food.delivery)
+  foodActivity = (latitude, longitude) => setpromise(food.activity)
 }
 
 /**
@@ -152,4 +183,4 @@ if (process.env.NODE_ENV === 'development') {
  */
 sendLogin = (code, mobile, validataToken) => setpromise(login.userInfo)
 
-export {cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace, msiteAddress, msiteFoodTypes, shopList}
+export {cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace, msiteAddress, msiteFoodTypes, shopList, foodCategory, foodDelivery, foodActivity}

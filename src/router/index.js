@@ -5,6 +5,7 @@ import home from '@/pages/home/home'
 import login from '@/pages/login/login'
 import city from '@/pages/city/city'
 import msite from '@/pages/msite/msite'
+import food from '@/pages/food/food'
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
       path: '/msite',
       name: 'msite',
       component: msite
+    },
+    {
+      path: '/food',
+      name: 'food',
+      component: food
     }
   ]
 })
