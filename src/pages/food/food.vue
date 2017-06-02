@@ -3,7 +3,7 @@
     <head-top go-back='true' :head-title='headTitle'></head-top>
     <section class="sort_container">
       <div class="sort_item" :class="{choose_type: sortBy === 'food'}">
-        <div class="sort_item_container">
+        <div class="sort_item_container" @click="chooseType('food')">
           <div class="sort_item_border">
             <span :class="{category_title: sortBy === 'food'}">
               {{foodTitle}}
@@ -17,7 +17,7 @@
           <section v-show="sortBy == 'food'" class="category_container sort_detail_type">
             <div class="category_left">
               <ul>
-                <li v-for="(item, index) in category" :key="index" class="category_left_li" :class="{category_active:restaurant_category_id === item.id}">
+                <li v-for="(item, index) in category" :key="index" class="category_left_li" :class="{category_active:restaurant_category_id === item.id}" @click="selectCategoryName(item.id, index)">
                   <div>
                     <span>{{item.name}}</span>
                   </div>
@@ -29,8 +29,9 @@
             </div>
             <div class="category_right">
               <ul>
-                <li v-for="(item,index) in categoryDetail" :key="item.id" class="category_right_li" :class="{category_right_choosed: restaurant_category_ids === item.id || (!restaurant_category_ids)&&index == 0}">
-                  <span>{{item.name}}</span>
+                <li v-for="(item, index) in categoryDetail" :key="item.id" class="category_right_li" :class="{category_right_choosed: restaurant_category_ids === item.id || (!restaurant_category_ids)&& index == 0}">
+                  
+                  <span><img :src="getImgPath(item.image_url)" alt="">{{item.name}}</span>
                   <span>{{item.count}}</span>
                 </li>
               </ul>
@@ -38,31 +39,156 @@
           </section>
         </transition>
       </div>
+      <div class="sort_item" :class="{choose_type: sortBy === 'sort'}">
+        <div class="sort_item_container" @click="chooseType('sort')">
+          <div class="sort_item_border">
+            <span :class="{category_title: sortBy === 'sort'}">排序</span>
+            <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" version="1.1" class="sort_icon">
+              <polygon points="0,3 10,3 5,8"/>
+            </svg>
+          </div>
+        </div>
+        <transition name="showlist">
+          <section v-show="sortBy === 'sort'" class="sort_detail_type">
+            <ul class="sort_list_container">
+              <li class="sort_list_li">
+                <svg>
+                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#default"></use>
+                </svg>
+                <p data="0" :class="{sort_select: sortByType === 0}">
+                  <span>智能排序</span>
+                  <svg v-if="sortByType === 0">
+                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                  </svg>
+                </p>
+              </li>
+              <li class="sort_list_li">
+                <svg>
+                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#distance"></use>
+                </svg>
+                <p data="5" :class="{sort_select: sortByType === 5}">
+                  <span>距离最近</span>
+                  <svg v-if="sortByType === 5">
+                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                  </svg>
+                </p>
+              </li>
+              <li class="sort_list_li">
+                <svg>
+                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#hot"></use>
+                </svg>
+                <p data="6" :class="{sort_select: sortByType === 6}">
+                  <span>销量最高</span>
+                  <svg v-if="sortByType === 6">
+                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                  </svg>
+                </p>
+              </li>
+              <li class="sort_list_li">
+                <svg>
+                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#price"></use>
+                </svg>
+                <p data="1" :class="{sort_select: sortByType === 1}">
+                  <span>起送价最低</span>
+                  <svg v-if="sortByType === 1">
+                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                  </svg>
+                </p>
+              </li>
+              <li class="sort_list_li">
+                <svg>
+                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#speed"></use>
+                </svg>
+                <p data="2" :class="{sort_select: sortByType === 2}">
+                  <span>配送速度最快</span>
+                  <svg v-if="sortByType === 2">
+                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                  </svg>
+                </p>
+              </li>
+              <li class="sort_list_li">
+                <svg>
+                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#rating"></use>
+                </svg>
+                <p data="3" :class="{sort_select: sortByType === 3}">
+                  <span>评分最高</span>
+                  <svg v-if="sortByType === 3">
+                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                  </svg>
+                </p>
+              </li>
+            </ul>
+          </section>
+        </transition>
+      </div>
+      <div class="sort_item" :class="{choose_type: sortBy === 'activity'}">
+        <div class="sort_item_container" @click="chooseType('activity')">
+          <span :class="{category_title: sortBy === 'activity'}">筛选</span>
+          <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" version="1.1" class="sort_icon">
+            <polygon points="0,3 10,3 5,8"/>
+          </svg>
+        </div>
+        <transition name="showlist">
+          <section v-show="sortBy ==='activity'" class="sort_detail_type filter_container">
+            <div style="width:100%;">
+              <header class="filter_header_style">配送方式</header>
+              <ul class="filter_ul">
+                <li v-for="item in Delivery" :key="item.id" class="filter_li">
+                  <svg :style="{opacity: (item.id == 0)&&(delivery_mode !== 0)? 0: 1}">
+                    <use xmlns:xlink="http://www.w3.org/1999/xlink" :xlink:href="delivery_mode == item.id? '#selected':'#fengniao'"></use>
+                  </svg>
+ <!--                  <span class="filter_icon" :style="{color: '#' + item.icon_color, borderColor: '#' + item.icon_color}" v-show="!support_ids[index].status">{{item.icon_name}}</span>
+                  <span :class="{selected_filter: support_ids[index].status}">{{item.name}}</span> -->
+                </li>
+              </ul>
+            </div>
+          </section>
+          <footer class="confirm_filter">
+            <div class="clear_all filter_button_style">清空</div>
+            <div class="confirm_select filter_button_style">确定<span v-show="filterNum">({{filterNum}})</span></div>
+          </footer>
+        </transition>  
+      </div>
     </section>
-food
+    <transition name="showcover">
+      <div class="back_cover" v-show="sortBy"></div>
+    </transition>
+    <section class="shop_list_container">
+      <shop-list  v-if="latitude" :geohash="geohash"></shop-list>
+    </section>
   </div>
 </template>
 
 <script>
 import {mapState, mapMutations} from 'vuex'
 import headTop from '@/components/header/head'
-import {foodCategory, msiteAddress} from '@/service/getData'
+import {foodCategory, msiteAddress, foodDelivery, foodActivity} from '@/service/getData'
+import shopList from '@/components/common/shoplist'
+import {getImgPath} from '@/components/common/mixin'
 export default {
   data () {
     return {
       headTitle: '', // msiet页面头部标题
-      foodTitle: '', // 排序左侧头部标题
+      foodTitle: '分类', // 排序左侧头部标题
       restaurant_category_id: '', // 食品类型id值
       restaurant_category_ids: '', // 筛选类型的id
       geohash: '', // city页面传递过来的地址geohash
       category: null, // category分类左侧数据
+      Delivery: null, // 配送方式数据
+      Activity: null, // 商家支持活动数据
       categoryDetail: null, // category分类右侧的详细数据
+      delivery_mode: null, // 选中的配送方式
+      support_ids: [], // 选中的商铺活动列表
+      filterNum: 0, // 所选中的所有样式的集合
+      confirmStatus: false, // 确认选择
       sortBy: '', // 筛选的条件
       sortByType: null // 根据何种方式排序
     }
   },
+  mixins: [getImgPath],
   components: {
-    headTop
+    headTop,
+    shopList
   },
   created () {
     this.initData()
@@ -80,12 +206,51 @@ export default {
       this.geohash = this.$route.query.geohash
       this.headTitle = this.$route.query.title
       this.restaurant_category_id = this.$route.query.restaurant_category_id
-      this.foodTitle = this.headTitle
+      // this.foodTitle = this.headTitle
       if (!this.latitude) {
         let res = await msiteAddress(this.geohash)
         this.RECORD_ADDRESS(res)
       }
+      // 获取category分类左侧数据
       this.category = await foodCategory(this.latitude, this.longitude)
+      this.category.forEach(item => {
+        if (this.restaurant_category_id === item.id) {
+          this.categoryDetail = item.sub_categories
+        }
+      })
+      // 获取筛选列表的配送方式
+      this.Delivery = await foodDelivery(this.latitude, this.longitude)
+      // 获取筛选列表的商铺活动
+      this.Activity = await foodActivity(this.latitude, this.longitude)
+      this.Activity.forEach((item, index) => {
+        this.support_ids[index] = {status: false, id: item.id}
+      })
+    },
+    // 点击顶部三个选项，展示不同的列表，选中当前选项进行展示，同时收回其他选项
+    async chooseType (type) {
+      if (this.sortBy !== type) {
+        this.sortBy = type
+        if (type === 'food') {
+          this.foodTitle = '分类'
+        }// else {
+          // this.foodTitle = this.headTitle
+        // }
+      } else {
+        this.sortBy = ''
+        // if (type === 'food') {
+          // this.foodTitle = this.headTitle
+        // }
+      }
+    },
+    // 选中Category左侧列表的某个选项时，右侧渲染相应的sub_categories列表
+    selectCategoryName (id, index) {
+      if (index === 0) {
+        this.restaurant_category_ids = null
+        this.sortBy = ''
+      } else {
+        this.restaurant_category_id = id
+        this.categoryDetail = this.category[index].sub_categories
+      }
     }
   }
 }
@@ -125,7 +290,7 @@ export default {
         }
       }
       .sort_icon{
-        vertical-align: middle;
+        vertical-align: baseline;
         transition: all .3s;
         fill:#666;
       }
@@ -162,8 +327,8 @@ export default {
     }
     .category_container{
       .category_left{
-        flex: 1;
-        background-color: #f1f1f1;
+        flex: 2;
+        background-color: #fafafa;
         height: 16rem;
         overflow-y: auto;
         span{
@@ -173,19 +338,15 @@ export default {
         .category_left_li{
           @include fj;
           padding:0 0.5rem;
-          .category_icon{
-            @include wh(.8rem, .8rem);
-            vertical-align: middle;
-            margin-right: .2rem;
-          }
           .category_count{
-            background-color: #ccc;
-            @include sc(.4rem, #fff);
+            background-color: #fff;
+            @include sc(.4rem, #666);
             padding: 0 .1rem;
-            border: 0.025rem solid #ccc;
+            border: 0.025rem solid #eee;
             border-radius: 0.8rem;
             vertical-align: middle;
             margin-right: 0.25rem;
+            font-size:0.45rem
           }
           .category_arrow{
             vertical-align: middle;
@@ -196,7 +357,7 @@ export default {
         }
       }
       .category_right{
-        flex: 1;
+        flex: 3;
         background-color: #fff;
         padding-left: 0.5rem;
         height: 16rem;
@@ -206,9 +367,14 @@ export default {
           height: 1.8rem;
           line-height: 1.8rem;
           padding-right: 0.5rem;
-          border-bottom: 0.025rem solid $bc;
           span{
             color: #666;
+          }
+          img{
+            margin-right: .4rem;
+            width: 1.2rem;
+            height: 1.2rem;
+            vertical-align: middle;
           }
         }
         .category_right_choosed{
