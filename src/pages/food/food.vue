@@ -29,7 +29,7 @@
             </div>
             <div class="category_right">
               <ul>
-                <li v-for="(item, index) in categoryDetail" :key="item.id" class="category_right_li" :class="{category_right_choosed: restaurant_category_ids === item.id || (!restaurant_category_ids)&& index == 0}">
+                <li v-for="(item, index) in categoryDetail" :key="item.id" class="category_right_li" :class="{category_right_choosed: restaurant_category_ids === item.id || (!restaurant_category_ids)&& index == 0}" @click="getCategoryIds(item.id, item.name)">
                   
                   <span><img :src="getImgPath(item.image_url)" alt="">{{item.name}}</span>
                   <span>{{item.count}}</span>
@@ -50,14 +50,14 @@
         </div>
         <transition name="showlist">
           <section v-show="sortBy === 'sort'" class="sort_detail_type">
-            <ul class="sort_list_container">
+            <ul class="sort_list_container" @click="sortList($event)">
               <li class="sort_list_li">
                 <svg>
                   <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#default"></use>
                 </svg>
-                <p data="0" :class="{sort_select: sortByType === 0}">
+                <p data="0" :class="{sort_select: sortByType == 0}">
                   <span>智能排序</span>
-                  <svg v-if="sortByType === 0">
+                  <svg v-if="sortByType == 0">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
                   </svg>
                 </p>
@@ -66,9 +66,9 @@
                 <svg>
                   <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#distance"></use>
                 </svg>
-                <p data="5" :class="{sort_select: sortByType === 5}">
+                <p data="5" :class="{sort_select: sortByType == 5}">
                   <span>距离最近</span>
-                  <svg v-if="sortByType === 5">
+                  <svg v-if="sortByType == 5">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
                   </svg>
                 </p>
@@ -77,9 +77,9 @@
                 <svg>
                   <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#hot"></use>
                 </svg>
-                <p data="6" :class="{sort_select: sortByType === 6}">
+                <p data="6" :class="{sort_select: sortByType == 6}">
                   <span>销量最高</span>
-                  <svg v-if="sortByType === 6">
+                  <svg v-if="sortByType == 6">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
                   </svg>
                 </p>
@@ -88,9 +88,9 @@
                 <svg>
                   <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#price"></use>
                 </svg>
-                <p data="1" :class="{sort_select: sortByType === 1}">
+                <p data="1" :class="{sort_select: sortByType == 1}">
                   <span>起送价最低</span>
-                  <svg v-if="sortByType === 1">
+                  <svg v-if="sortByType == 1">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
                   </svg>
                 </p>
@@ -99,9 +99,9 @@
                 <svg>
                   <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#speed"></use>
                 </svg>
-                <p data="2" :class="{sort_select: sortByType === 2}">
+                <p data="2" :class="{sort_select: sortByType == 2}">
                   <span>配送速度最快</span>
-                  <svg v-if="sortByType === 2">
+                  <svg v-if="sortByType == 2">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
                   </svg>
                 </p>
@@ -110,9 +110,9 @@
                 <svg>
                   <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#rating"></use>
                 </svg>
-                <p data="3" :class="{sort_select: sortByType === 3}">
+                <p data="3" :class="{sort_select: sortByType == 3}">
                   <span>评分最高</span>
-                  <svg v-if="sortByType === 3">
+                  <svg v-if="sortByType == 3">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
                   </svg>
                 </p>
@@ -133,20 +133,29 @@
             <div style="width:100%;">
               <header class="filter_header_style">配送方式</header>
               <ul class="filter_ul">
-                <li v-for="item in Delivery" :key="item.id" class="filter_li">
+                <li v-for="item in Delivery" :key="item.id" class="filter_li" @click="selectDeliveryMode(item.id)">
                   <svg :style="{opacity: (item.id == 0)&&(delivery_mode !== 0)? 0: 1}">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" :xlink:href="delivery_mode == item.id? '#selected':'#fengniao'"></use>
                   </svg>
- <!--                  <span class="filter_icon" :style="{color: '#' + item.icon_color, borderColor: '#' + item.icon_color}" v-show="!support_ids[index].status">{{item.icon_name}}</span>
-                  <span :class="{selected_filter: support_ids[index].status}">{{item.name}}</span> -->
+                  <span :class="{selected_filter:delivery_mode == item.id}">{{item.text}}</span>
+                </li>
+              </ul>
+              <header class="filter_header_style">商家属性（可多选）</header>
+              <ul class="filter_ul" >
+                <li v-for="(item, index) in Activity" :key="item.id" class="filter_li" @click="selectSupportIds(index, item.id)">
+                  <svg v-show="support_ids[index].status" class="activity_svg">
+                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#selected"></use>
+                  </svg>
+                  <span class="filter_icon" :style="{color:'#' + item.icon_color, borderColor: '#' + item.icon_color}" v-show="!support_ids[index].status">{{item.icon_name}}</span>
+                  <span :class="{selected_filter:support_ids[index].status}">{{item.name}}</span>
                 </li>
               </ul>
             </div>
+            <footer class="confirm_filter">
+              <div class="clear_all filter_button_style" @click="clearAll">清空</div>
+              <div class="confirm_select filter_button_style" @click="confirmSelectFun">确定<span v-show="filterNum">({{filterNum}})</span></div>
+            </footer>
           </section>
-          <footer class="confirm_filter">
-            <div class="clear_all filter_button_style">清空</div>
-            <div class="confirm_select filter_button_style">确定<span v-show="filterNum">({{filterNum}})</span></div>
-          </footer>
         </transition>  
       </div>
     </section>
@@ -154,7 +163,7 @@
       <div class="back_cover" v-show="sortBy"></div>
     </transition>
     <section class="shop_list_container">
-      <shop-list  v-if="latitude" :geohash="geohash"></shop-list>
+      <shop-list  v-if="latitude" :geohash="geohash" :restaurantCateGoryId="restaurant_category_id" :restaurantCateGoryIds="restaurant_category_ids" :sortByType="sortByType" :deliveryMode="delivery_mode" :confirmSelect="confirmStatus" :supportIds="support_ids" ></shop-list>
     </section>
   </div>
 </template>
@@ -251,6 +260,52 @@ export default {
         this.restaurant_category_id = id
         this.categoryDetail = this.category[index].sub_categories
       }
+    },
+    // 选中Category右侧列表的某个选项时，进行筛选，重新获取数据并渲染
+    getCategoryIds (id, name) {
+      this.restaurant_category_ids = id
+      this.sortBy = ''
+      this.foodTitle = this.headTitle = name
+    },
+    // 点击某个排序方式，获取事件对象的data值，并根据获取的值重新获取数据渲染
+    sortList (event) {
+      this.sortByType = event.target.getAttribute('data')
+      this.sortBy = ''
+    },
+    // 筛选选项中的配送方式选择
+    selectDeliveryMode (id) {
+      if (this.delivery_mode === null) {
+        this.filterNum++
+        this.delivery_mode = id
+      } else if (this.delivery_mode === id) {
+        this.filterNum--
+        this.delivery_mode = null
+      } else {
+        this.delivery_mode = id
+      }
+    },
+    // 点击商家活动，状态取反
+    selectSupportIds (index, id) {
+      this.support_ids.splice(index, 1, {status: !this.support_ids[index].status, id: id})
+      this.filterNum = this.delivery_mode == null ? 0 : 1
+      this.support_ids.forEach(item => {
+        if (item.status) {
+          this.filterNum++
+        }
+      })
+    },
+    // 点击取消或者确认时，需要清空当前已选的状态值
+    clearAll () {
+      this.delivery_mode = null
+      this.support_ids.map(item => {
+        item.status = false
+      })
+      this.filterNum = 0
+    },
+    // 点击确认时，将需要筛选的id值传递给子组件，并且收回列表
+    confirmSelectFun () {
+      this.confirmStatus = !this.confirmStatus
+      this.sortBy = ''
     }
   }
 }
