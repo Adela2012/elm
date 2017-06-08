@@ -4,6 +4,7 @@ import * as login from './tempdata/login'
 import * as city from './tempdata/city'
 import * as msite from './tempdata/msite'
 import * as food from './tempdata/food'
+import * as shop from './tempdata/shop'
 
 /**
  *创建临时数据
@@ -13,7 +14,7 @@ const setpromise = data => {
     resolve(data)
   })
 }
-var cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace, msiteAddress, msiteFoodTypes, shopList, foodCategory, foodDelivery, foodActivity
+var cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace, msiteAddress, msiteFoodTypes, shopList, foodCategory, foodDelivery, foodActivity, foodMenu, shopDetails, getRatingList, ratingScores, ratingTags
 // 编译环境使用真实数据
 if (process.env.NODE_ENV === 'development') {
   /**
@@ -154,6 +155,40 @@ if (process.env.NODE_ENV === 'development') {
     longitude,
     kw: ''
   })
+
+  /**
+   * 获取shop页面商铺详情
+   */
+  shopDetails = (shopid, latitude, longitude) => fetch('GET', '/shopping/restaurant/' + shopid, {
+    latitude,
+    longitude:longitude + '&extras[]=activities&extras[]=albums&extras[]=license&extras[]=identification'
+  })
+
+  /**
+   * 获取shop页面的商家属性活动列表
+   */
+  foodMenu = restaurant_id => fetch('GET', '/shopping/v2/menu', {
+    restaurant_id
+  })
+
+  /**
+   * 获取shop商铺评价列表
+   */
+  getRatingList = (offset, shopid) => fetch('GET', '/ugc/v2/restaurants/' + shopid + '/ratings', {
+    has_content: true,
+    offset,
+    limit:10
+  })
+
+  /**
+   * 获取shop商铺评价分数
+   */
+  ratingScores = shopid => fetch('GET', '/ugc/v2/restaurants/' + shopid + '/ratings/scores', {})
+  
+  /**
+   * 获取shop商铺评价分类
+   */
+  ratingTags = shopid => fetch('GET', '/ugc/v2/restaurants/' + shopid + '/ratings/tags', {})
 } else {
   // home
   cityGuess = () => setpromise(home.guesscity)
@@ -176,6 +211,12 @@ if (process.env.NODE_ENV === 'development') {
   foodCategory = (latitude, longitude) => setpromise(food.category)
   foodDelivery = (latitude, longitude) => setpromise(food.delivery)
   foodActivity = (latitude, longitude) => setpromise(food.activity)
+  //shop
+  shopDetails = (shopid, latitude, longitude) => setpromise(shop.shopDetails)
+  foodMenu = restaurant_id => setpromise(shop.shopMenu)
+  getRatingList = (offset, shopid) => setpromise(shop.ratingList)
+  ratingScores = shopid => setpromise(shop.scores)
+  ratingTags = shopid => setpromise(shop.tage)
 }
 
 /**
@@ -183,4 +224,4 @@ if (process.env.NODE_ENV === 'development') {
  */
 sendLogin = (code, mobile, validataToken) => setpromise(login.userInfo)
 
-export {cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace, msiteAddress, msiteFoodTypes, shopList, foodCategory, foodDelivery, foodActivity}
+export {cityGuess, hotcity, groupcity, getUser, mobileCode, checkExsis, sendLogin, getcaptchas, accountLogin, currentcity, searchplace, msiteAddress, msiteFoodTypes, shopList, foodCategory, foodDelivery, foodActivity, foodMenu, shopDetails, getRatingList, ratingScores, ratingTags}
