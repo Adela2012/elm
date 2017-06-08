@@ -31,6 +31,7 @@ export default {
   .rating_container{
         position: relative;
         @include wh(2rem, .4rem);
+        left: calc(50% - 1rem);
         .star_overflow{
             overflow: hidden;
             position: relative;
@@ -41,8 +42,6 @@ export default {
             display: flex;
             width: 2rem;
             height: 0.4rem;
-            top: -0.02rem;
-            left: -0.02rem;
             .grey_fill{
                 fill: #d1d1d1;
             }
