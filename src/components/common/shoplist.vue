@@ -15,7 +15,7 @@
           <section class="rating_order_num">
             <section class="rating_order_num_left">
               <div class="rating_section">
-                <rating-star :rating="item.rating"></rating-star>
+                <div><rating-star :rating="item.rating"></rating-star></div>
                 <span class="rating_num">{{item.rating}}</span>
               </div>
               <div class="order_section">
