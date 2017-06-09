@@ -62,27 +62,84 @@
               <line x1="22" y1="22" x2="38" y2="38" style="stroke:#999;stroke-width:2"/>
           </svg>
         </div>
-     </transition>
-     <div class="change_show_type">
-      <div>
-         <span :class="{activity_show: changeShowType == 'food'}" @click="changeShowType='food'">商品</span>
+      </transition>
+      <div class="change_show_type">
+        <div>
+          <span :class="{activity_show: changeShowType == 'food'}" @click="changeShowType='food'">商品</span>
+        </div>
+        <div>
+          <span :class="{activity_show: changeShowType == 'rating'}" @click="changeShowType='rating'">评价</span>
+        </div>
       </div>
-      <div>
-         <span :class="{activity_show: changeShowType == 'rating'}" @click="changeShowType='rating'">评价</span>
-      </div>
-     </div>
-     <transition name="fade-choose">
-       <div v-show="changeShowType == 'food'" class="food_container">
-         <div class="menu_container">
-           <div class="menu_left" id="wrapper_menu">
-             <ul>
-               <li v-for="(item,index) in menuList" :key="index" class="menu_left_li" :class="{activity_menu: index == menuIndex}">
-                 <img :src="getImgPath(item.icon_url)" v-if="item.icon_url" alt="">
-                 <span>{{item.name}}</span>
-                 <span class="category_num" v-if="categoryNum[index]&&item.type==1">{{categoryNum[index]}}</span>
-               </li>
-             </ul>
-           </div>
+      <transition name="fade-choose">
+        <div v-show="changeShowType == 'food'" class="food_container">
+          <div class="menu_container">
+            <div class="menu_left" id="wrapper_menu">
+              <ul>
+                <li v-for="(item,index) in menuList" :key="index" class="menu_left_li" :class="{activity_menu: index == menuIndex}">
+                  <img :src="getImgPath(item.icon_url)" v-if="item.icon_url" alt="">
+                  <span>{{item.name}}</span>
+                  <span class="category_num" v-if="categoryNum[index]&&item.type==1">{{categoryNum[index]}}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="menu_right">
+              <ul>
+                <li v-for="(item, index) in menuList" :key="index">
+                  <header class="menu_detail_header">
+                    <div class="menu_detail_header_left">
+                      <strong class="menu_item_title">{{item.name}}</strong>
+                      <span class="menu_item_description">{{item.description}}</span>
+                    </div>
+                    <span class="menu_detail_header_right"></span>
+                    <p class="description_tip" v-if="index == TitleDetailIndex">
+                      <span>{{item.name}}</span>
+                      {{item.description}}
+                    </p>
+                  </header>
+                  <div v-for="(foods, foodindex) in item.foods" :key="foodindex" class="menu_detail_list">
+                    <router-link :to="{path: 'shop/foodDetail',query:{image_path:foods.image_path,
+                      description:foods.description,
+                      month_sales:foods.month_sales,
+                      name: foods.name,
+                      rating:foods.rating,
+                      rating_count:foods.rating_count,
+                      satisfy_rate:foods.satisfy_rate,
+                      foods,
+                      shopId}}" tag="div" class="menu_detail_link">
+                        <div class="menu_food_img">
+                          <img :src="getImgPath(foods.image_path)" alt="">
+                        </div>
+                        <div class="menu_food_description">
+                          <h3 class="food_description_head">
+                            <strong class="description_foodname">{{foods.name}}</strong>
+                            <ul v-if="foods.attributes.length" class="attributes_ul">
+                              <li v-for="(attribute,foodindex) in foods.attributes" :key="foodindex" :style="{color: '#'+attribute.icon_color, borderColor: '#'+attribute.icon_color}" :class="{attribute_new: attribute.icon_name == '新'}">
+                                <p :style="{color:attribute.icon_name == '新'?'#fff':'#'+attribute.icon_color}">{{attribute.icon_name == '新'?'新品':attribute.icon_name}}</p>
+                              </li>
+                            </ul>
+                          </h3>
+                          <p class="food_description_content">{{foods.description}}</p>
+                          <p class="food_description_sale_rating">
+                            <span>月售{{foods.month_sales}}份</span>
+                            <span>好评率{{foods.satisfy_rate}}%</span>
+                          </p>
+                          <p v-if="foods.activity" class="food_activity">
+                            <span :style="{color:'#'+foods.activity.image_text_color,borderColor:'#'+foods.activity.icon_color}">{{foods.activity.image_text}}</span>
+                          </p>
+                        </div>
+                      </router-link>
+                      <footer class="menu_detail_footer">
+                        <div class="food_price">
+                          <span>￥</span>
+                          <span>{{foods.specfoods[0].price}}</span>
+                          <span v-if="foods.specifications.length">起</span>
+                        </div>
+                      </footer>
+                  </div>
+                </li>
+              </ul>
+            </div>
          </div>
        </div>
      </transition> 
@@ -107,6 +164,7 @@ export default {
       menuList: [], // 食品列表
       menuIndex: 0,
       menuIndexChange: true,
+      TitleDetailIndex: null,
       ratingList: null, // 评价列表
       ratingScoresData: null, // 评价总体分数
       ratingTagsList: null, // 评价分类列表
@@ -369,14 +427,16 @@ export default {
           background-color: #f8f8f8;
           width: 3.8rem;
           .menu_left_li{
-              padding: .7rem .3rem;
+              padding: .7rem .25rem;
               border-bottom: 0.025rem solid #ededed;
               box-sizing: border-box;
               border-left: 0.15rem solid #f8f8f8;
               position: relative;
-              line-height:1em;
+              line-height:.6rem;
+              font-size:.6rem;
               img{
-                  @include wh(.5rem, .6rem);
+                  @include wh(.4rem, .6rem);
+                  vertical-align:middle;
               }
               span{
                   @include sc(.6rem, #666);
@@ -409,16 +469,17 @@ export default {
           overflow-y: auto;
           .menu_detail_header{
               width: 100%;
-              padding: .4rem;
+              padding: .2rem .4rem;
               position: relative;
               @include fj;
               align-items: center;
+              line-height:.6rem;
               .menu_detail_header_left{
                   width: 11rem;
                   white-space: nowrap;
                   overflow: hidden;
                   .menu_item_title{
-                      @include sc(.7rem, #666);
+                      @include sc(.6rem, #666);
                       font-weight: bold;
                   }
                   .menu_item_description{
