@@ -18,12 +18,13 @@
         <p class="pois_address ellipsis">{{item.address}}</p>
       </li>
     </ul>
+    <footer v-if="historytitle&&placelist.length" class="clear_all_history" @click="clearAll">清空所有</footer>
     <div class="search_none_place" v-if="placeNone">很抱歉！无搜索结果</div>
   </div>
 </template>
 
 <script>
-import {getStore, setStore} from '../../config/mUtils'
+import {getStore, setStore, removeStore} from '../../config/mUtils'
 import headTop from '@/components/header/head'
 import {currentcity, searchplace} from '@/service/getData'
 export default {
@@ -84,6 +85,10 @@ export default {
       }
       setStore('placeHistory', this.placeHistory)
       this.$router.push({path: '/msite', query: {geohash}})
+    },
+    clearAll () {
+      removeStore('placeHistory')
+      this.initData()
     }
   }
 }
@@ -156,5 +161,11 @@ export default {
         color: #333;
         background-color: #fff;
         text-indent: 0.5rem;
+    }
+    .clear_all_history{
+        @include sc(0.7rem, #666);
+        text-align: center;
+        line-height: 2rem;
+        background-color: #fff;
     }
 </style>
