@@ -142,16 +142,82 @@
             </div>
          </div>
        </div>
-     </transition> 
+      </transition> 
+      <transition name="fade-choose">
+        <div class="rating_container" id="ratingContainer" v-show="changeShowType == 'rating'">
+          <div v-load-more="loaderMoreRating" type="2">
+            <div>
+              <header class="rating_header">
+                <div class="rating_header_left">
+                  <p>{{shopDetailData.rating}}</p>
+                  <p>综合评价</p>
+                  <p>高于周边商家{{(ratingScoresData.compare_rating*100).toFixed(1)}}%</p>
+                </div>
+                <div class="rating_header_right">
+                  <p>
+                    <span>服务态度</span>
+                    <rating-star :rating="ratingScoresData.service_score"></rating-star>
+                    <span class="rating_num">{{ratingScoresData.service_score.toFixed(1)}}</span>
+                  </p>
+                  <p>
+                    <span>菜品评价</span>
+                    <rating-star :rating="ratingScoresData.food_score"></rating-star>
+                    <span class="rating_num">{{ratingScoresData.food_score.toFixed(1)}}</span>
+                  </p>
+                  <p>
+                    <span>送达时间</span>
+                    <span class="delivery_time">{{shopDetailData.order_lead_time}}分钟</span>
+                  </p>
+                </div>
+              </header>
+              <ul class="tag_list_ul">
+                <li v-for="(item,index) in ratingTagsList" :key="index" :class="{unsatisfied: item.unsatisfied, tagActivity: ratingTagsIndex == index}" @click="changeTgeIndex(index, item.name)">{{item.name}}({{item.count}})</li>
+              </ul>
+              <ul class="rating_list_ul">
+                <li v-for="(item, index) in ratingList" :key="index" class="rating_list_li">
+                  <img :src="getImgPath(item.avatar)" class="ratign_list_li" alt="">
+                  <section class="rating_list_details">
+                    <header>
+                      <div class="username_star">
+                        <p class="username">{{item.username}}</p>
+                        <p class="star_desc">
+                          <rating-star :rating="item.rating_star"></rating-star>
+                          <span class="item_spent_desc">{{item.time_spent_desc}}</span>
+                        </p>
+                      </div>
+                      <time class="rated_at">
+                        {{item.rated_at}}
+                      </time>
+                    </header>
+                    <div class="rating_text">{{item.rating_text}}</div>
+                    <div class="reply_text">{{item.reply_text}}</div>
+                    <ul class="food_img_ul">
+                      <li v-for="(item, index) in item.item_ratings" :key="index">
+                        <img :src="getImgPath(item.image_hash)" v-if="item.image_hash" alt="">
+                      </li>
+                    </ul>
+                    <ul class="food_name_ul">
+                      <li v-for="(item,index) in item.item_ratings" :key="index" class="ellipsis">{{item.food_name}}</li>
+                    </ul>
+                  </section>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </transition>
     </div>
+    <loading v-show="showLoading || loadRatings"></loading>
+
   </div>
 </template>
 
 <script>
 import {msiteAddress, shopDetails, foodMenu, getRatingList, ratingScores, ratingTags} from '@/service/getData'
-import {getImgPath} from '@/components/common/mixin'
+import {getImgPath, loadMore} from '@/components/common/mixin'
 import {mapState, mapMutations} from 'vuex'
 import ratingStar from '@/components/common/ratingStar'
+import loading from '@/components/common/loading'
 export default {
   data () {
     return {
@@ -166,6 +232,12 @@ export default {
       menuIndexChange: true,
       TitleDetailIndex: null,
       ratingList: null, // 评价列表
+      ratingTagsIndex: 0,
+      ratingTagName: '',
+      ratingScroll: null,
+      loadRatings: false, // 加载更多评论是否显示加载组件
+      showLoading: true,
+      preventRepeatRequest: false, // 防止多次出发数据请求
       ratingScoresData: null, // 评价总体分数
       ratingTagsList: null, // 评价分类列表
       ratingOffset: 0 // 评价获取数据offset值
@@ -178,9 +250,10 @@ export default {
   mounted () {
     this.initData()
   },
-  mixins: [getImgPath],
+  mixins: [getImgPath, loadMore],
   components: {
-    ratingStar
+    ratingStar,
+    loading
   },
   computed: {
     ...mapState([
@@ -209,6 +282,45 @@ export default {
       this.ratingScoresData = await ratingScores(this.shopId)
       // 评论Tag列表
       this.ratingTagsList = await ratingTags(this.shopId)
+      // 加载隐藏动画
+      this.hideLoading()
+    },
+    // 获取不同类型的评论列表
+    async changeTgeIndex (index, name) {
+      this.ratingTagsIndex = index
+      this.ratingOffset = 0
+      this.ratingTagName = name
+      let res = await getRatingList(this.ratingOffset, name)
+      this.ratingList = [...res]
+      this.$nextTick(() => {
+        this.ratingScroll.refresh()
+      })
+    },
+    // 加载更多评论
+    async loaderMoreRating () {
+      if (this.preventRepeatRequest) {
+        return
+      }
+      this.loadRatings = true
+      this.preventRepeatRequest = true
+      this.ratingOffset += 10
+      let ratingDate = await getRatingList(this.ratingOffset, this.rating.TagName)
+      this.ratingList = [...this.ratingList, ...ratingDate]
+      this.loadRatings = false
+      if (ratingDate.length >= 10) {
+        this.preventRepeatRequest = false
+      }
+    },
+    hideLoading () {
+      if (process.env.NODE_ENV !== 'development') {
+        clearTimeout(this.timer)
+        this.timer = setTimeout(() => {
+          clearTimeout(this.timer)
+          this.showLoading = false
+        }, 600)
+      } else {
+        this.showLoading = false
+      }
     }
   }
 }
@@ -217,6 +329,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
   @import 'src/style/mixin';
+  .rating_container{position:static;}
   @keyframes mymove{
      0%   { transform: scale(1) }
      25%  { transform: scale(.8) }
@@ -821,17 +934,19 @@ export default {
       flex: 1;
       overflow-y: hidden;
       flex-direction: column;
-      p, span, li, time{
-          font-family: Helvetica Neue,Tahoma,Arial;
-      }
+      // p, span, li, time{
+          // font-family: Helvetica Neue,Tahoma,Arial;
+      // }
       .rating_header{
           display: flex;
           background-color: #fff;
           padding: .8rem .5rem;
           margin-bottom: 0.5rem;
           .rating_header_left{
-              flex: 3;
+              flex: 2.5;
               text-align: center;
+              padding-right: .5rem;
+              border-right: 1px solid #eee;
               p:nth-of-type(1){
                   @include sc(1.2rem, #f60);
               }
@@ -851,12 +966,13 @@ export default {
                   display: flex;
                   align-items: center;
                   justify-content: flex-start;
+                  padding-left:.8rem;
                   span:nth-of-type(1){
                       color: #666;
-                      margin-right: .5rem;
+                      margin-right: .6rem;
                   }
                   .rating_num{
-                      width: 3rem;
+                      width: 2rem;
                       @include sc(.55rem, #f60);
                   }
                   .delivery_time{
@@ -925,6 +1041,30 @@ export default {
                       .rated_at{
                           @include sc(.4rem, #999);
                       }
+                  }
+                  .rating_text{
+                    @include sc(0.6rem,#333);
+                    margin-bottom:0.4rem;
+                  }
+                  .reply_text{
+                    position:relative;
+                    margin: .266667rem 0;
+                    padding: .266667rem;
+                    background: #f3f3f3;
+                    border-radius: .12rem;
+                    @include sc(0.6rem,#333);
+                    &:after{
+                      content: " ";
+                      position: absolute;
+                      bottom: 100%;
+                      left: .6rem;
+                      width: 0;
+                      height: 0;
+                      border-style: solid;
+                      border-width: 0 .3rem .3rem;
+                      border-color: transparent transparent #f3f3f3;
+                      background-color: white;
+                    }
                   }
                   .food_img_ul{
                       display: flex;
